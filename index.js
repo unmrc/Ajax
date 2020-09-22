@@ -1,105 +1,86 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports) {
-
 var searchElement = document.getElementById('search');
-searchElement.addEventListener('change', Ajax);
+var selectType = document.getElementById('type');
 var currentPage = 1;
+searchElement.addEventListener('change', function () {
+    Ajax();
+    currentPage = 1;
+});
+selectType.addEventListener('change', function () {
+    Ajax();
+    currentPage = 1;
+});
+var totalResults;
+var pagesQuantity;
+var prevButton = document.getElementById('prev-button');
+var prev = document.getElementById('prev');
+var numOne = document.getElementById('numOne');
+var numTwo = document.getElementById('numTwo');
+var numThree = document.getElementById('numThree');
+var numOneButton = document.getElementById('numOneButton');
+var numTwoButton = document.getElementById('numTwoButton');
+var numThreeButton = document.getElementById('numThreeButton');
+var next = document.getElementById('next');
+var nextButton = document.getElementById('next-button');
+prev.addEventListener('click', function () {
+    resolveDisabledStatus(true, false);
+    Ajax();
+});
+next.addEventListener('click', function () {
+    resolveDisabledStatus(false, true);
+    Ajax();
+});
+function resolveDisabledStatus(decreasePage, increasePage) {
+    if (currentPage >= pagesQuantity) {
+        nextButton.classList.add("disabled");
+    }
+    else {
+        nextButton.classList.remove("disabled");
+        if (increasePage) {
+            ++currentPage;
+            numOne.textContent = new Number(+numOne.textContent + 1).toString();
+            numTwo.textContent = new Number(+numTwo.textContent + 1).toString();
+            numThree.textContent = new Number(+numThree.textContent + 1).toString();
+        }
+    }
+    if (currentPage <= 1) {
+        prevButton.classList.add("disabled");
+    }
+    else {
+        prevButton.classList.remove("disabled");
+        if (decreasePage) {
+            --currentPage;
+            numOne.textContent = new Number(+numOne.textContent - 1).toString();
+            numTwo.textContent = new Number(+numTwo.textContent - 1).toString();
+            numThree.textContent = new Number(+numThree.textContent - 1).toString();
+        }
+    }
+    if (pagesQuantity == 1) {
+        numTwoButton.classList.add("disabled");
+        numThreeButton.classList.add("disabled");
+        nextButton.classList.add("disabled");
+    }
+    else if (pagesQuantity == 2) {
+        numThreeButton.classList.add("disabled");
+    }
+    else {
+        numTwoButton.classList.remove("disabled");
+        numThreeButton.classList.remove("disabled");
+    }
+}
 function Ajax() {
     var url = 'http://www.omdbapi.com/?apikey=a5a1b624';
     var s = searchElement.value;
+    var type = selectType.value;
     url += '&s=' + s;
-    // url += '&page=' + currentPage;
+    url += '&type=' + type;
+    url += '&page=' + currentPage;
     fetch(url)
         .then(function (response) { return response.json(); })
         .then(function (myJson) {
         OutputElements(myJson);
+        totalResults = myJson.totalResults;
+        pagesQuantity = Math.round(totalResults / 10);
+        resolveDisabledStatus(false, false);
     });
 }
 Ajax();
@@ -110,6 +91,7 @@ function OutputElements(myJson) {
     console.log(myJson);
     var _loop_1 = function (i) {
         var element = movies[i];
+        var divCol6 = document.createElement('div');
         var divCard = document.createElement('div');
         var divNogutters = document.createElement('div');
         var divCol4 = document.createElement('div');
@@ -120,15 +102,15 @@ function OutputElements(myJson) {
         var p = document.createElement('p');
         var a = document.createElement('a');
         img.src = element.Poster;
+        divCol6.appendChild(divCard);
+        divCol6.classList.add('col-6', 'mb-3');
         divCard.appendChild(divNogutters);
-        divCard.classList.add('col-6', 'card', 'mb-3');
+        divCard.classList.add('card');
         divNogutters.classList.add('row', 'no-gutters');
         divNogutters.appendChild(divCol4);
         divCol4.classList.add('col-md-4');
         divCol4.appendChild(img);
         img.classList.add('card-img');
-        // img.style.objectFit = 'cover';
-        // img.style.height = '100%';
         divNogutters.appendChild(divCol8);
         divCol8.classList.add('col-md-8');
         divCol8.appendChild(divCardBody);
@@ -142,7 +124,7 @@ function OutputElements(myJson) {
         divCardBody.appendChild(a);
         a.classList.add('btn', 'btn-primary');
         a.textContent = 'More...';
-        films.appendChild(divCard);
+        films.appendChild(divCol6);
         a.addEventListener('click', function () { AjaxMovie(element.imdbID); });
     };
     for (var i = 0; i < movies.length; i++) {
@@ -159,7 +141,3 @@ function AjaxMovie(id) {
     });
 }
 ;
-
-
-/***/ })
-/******/ ]);
